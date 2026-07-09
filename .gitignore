@@ -1,0 +1,19 @@
+# Private or large datasets
+data/*.csv
+
+# Generated model artifacts
+models/*.keras
+*.joblib
+
+# Python environments and caches
+__pycache__/
+*.py[cod]
+.venv/
+
+# Generated plots; commit selected verified results explicitly with git add -f
+results/*.png
+
+# Common local files
+.env
+.DS_Store
+
