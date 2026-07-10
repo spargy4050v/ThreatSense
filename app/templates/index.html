@@ -3,291 +3,785 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ThreatSense evaluation and inference</title>
+  <title>ThreatSense — Evaluation &amp; Inference</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       color-scheme: light;
-      --ink: #102a43;
-      --muted: #52667a;
+      --bg: #f4f6f8;
       --surface: #ffffff;
-      --canvas: #f2f6f8;
-      --line: #d7e1e8;
-      --primary: #176b87;
-      --primary-dark: #0f5269;
-      --accent: #e58e26;
-      --success: #147d64;
-      --danger: #b23a48;
+      --surface-muted: #f8fafb;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --brand: #0f4c5c;
+      --brand-hover: #0a3a47;
+      --brand-soft: #e6f2f5;
+      --accent: #d97706;
+      --accent-soft: #fffbeb;
+      --success: #047857;
+      --success-soft: #ecfdf5;
+      --danger: #b91c1c;
+      --danger-soft: #fef2f2;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
+      --radius: 10px;
+      --radius-lg: 14px;
+      --max-width: 1120px;
     }
 
-    * { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; }
 
     body {
       margin: 0;
-      background: var(--canvas);
-      color: var(--ink);
-      font-family: Inter, "Segoe UI", Arial, sans-serif;
-      line-height: 1.5;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
     }
 
-    header {
-      color: white;
-      background: linear-gradient(120deg, #0d4053, var(--primary));
-      padding: 3.25rem max(1.25rem, calc((100vw - 1180px) / 2));
+    /* ── Top bar ── */
+    .topbar {
+      background: var(--brand);
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    header h1 {
-      margin: 0 0 0.5rem;
-      font-size: clamp(2rem, 5vw, 3.4rem);
-      letter-spacing: -0.04em;
-    }
-
-    header p { max-width: 760px; margin: 0; color: #d9edf4; }
-
-    main {
-      width: min(1180px, calc(100% - 2rem));
-      margin: 2rem auto 4rem;
-    }
-
-    section {
-      margin: 1.5rem 0;
-      padding: 1.5rem;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: var(--surface);
-      box-shadow: 0 10px 28px rgba(16, 42, 67, 0.06);
-    }
-
-    h2 { margin-top: 0; }
-    h3 { margin-bottom: 0.35rem; }
-    .muted { color: var(--muted); }
-
-    .scope-note {
-      border-left: 5px solid var(--accent);
-      background: #fff8ed;
-    }
-
-    .metric-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
-      gap: 0.8rem;
-      margin-top: 1rem;
-    }
-
-    .metric {
-      padding: 1rem;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: #f8fbfc;
-    }
-
-    .metric strong { display: block; font-size: 1.45rem; color: var(--primary-dark); }
-    .metric span { font-size: 0.85rem; color: var(--muted); }
-
-    .plot-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    .topbar-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 1rem;
     }
 
-    figure {
-      margin: 0;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      overflow: hidden;
-      background: white;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
     }
 
-    figure img { display: block; width: 100%; height: auto; }
-    figcaption { padding: 0.8rem 1rem; color: var(--muted); }
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.15);
+      display: grid;
+      place-items: center;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
 
-    button {
+    .topbar-tag {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.75);
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 2rem 1.5rem 0;
+    }
+
+    .page-header h1 {
+      margin: 0 0 0.4rem;
+      font-size: clamp(1.5rem, 3vw, 1.85rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+
+    .page-header p {
+      margin: 0;
+      max-width: 640px;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    /* ── Layout ── */
+    main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 3rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+    }
+
+    .card-body {
+      padding: 1.35rem 1.5rem;
+    }
+
+    .card-header {
+      padding: 1.1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-muted);
+    }
+
+    .card-header h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .card-header p {
+      margin: 0.2rem 0 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Callout ── */
+    .callout {
+      display: flex;
+      gap: 0.85rem;
+      padding: 1rem 1.25rem;
+      background: var(--accent-soft);
+      border: 1px solid #fde68a;
+      border-radius: var(--radius);
+      margin-bottom: 1.25rem;
+      font-size: 0.9rem;
+    }
+
+    .callout-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      margin-top: 0.1rem;
+      color: var(--accent);
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .callout p {
+      margin: 0 0 0.5rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .callout p:last-child { margin-bottom: 0; }
+
+    .text-muted { color: var(--text-muted); }
+
+    /* ── Metrics ── */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .metric-card {
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-muted);
+    }
+
+    .metric-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.35rem;
+    }
+
+    .metric-value {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--brand);
+      line-height: 1.2;
+    }
+
+    .metric-compare {
+      display: block;
+      margin-top: 0.35rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .metric-compare span {
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .empty-state {
+      padding: 2rem 1rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius);
+      background: var(--surface-muted);
+    }
+
+    /* ── Charts ── */
+    .chart-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .chart-row {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .chart-row--pair {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .chart-row--full {
+      grid-template-columns: 1fr;
+    }
+
+    .chart-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-muted);
+      overflow: hidden;
+    }
+
+    .chart-card figcaption {
+      padding: 0.7rem 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      line-height: 1.4;
+    }
+
+    .chart-frame {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: #fff;
+      min-height: 0;
+    }
+
+    /* Square-ish model evaluation plots (~6:5) */
+    .chart-row--pair .chart-frame {
+      aspect-ratio: 6 / 5;
+      max-height: 420px;
+    }
+
+    /* Wide comparison / distribution plots (~9:5–6) */
+    .chart-row--wide .chart-frame {
+      aspect-ratio: 9 / 5.5;
+      max-height: 380px;
+    }
+
+    /* Panoramic leakage plot (~18:8) */
+    .chart-row--panoramic .chart-frame {
+      aspect-ratio: 18 / 8;
+      max-height: 340px;
+    }
+
+    .chart-frame img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
       border: 0;
       border-radius: 8px;
-      padding: 0.7rem 1rem;
-      color: white;
-      background: var(--primary);
+      padding: 0.6rem 1rem;
       font: inherit;
-      font-weight: 650;
+      font-size: 0.875rem;
+      font-weight: 600;
       cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s;
     }
 
-    button:hover { background: var(--primary-dark); }
-    button.secondary { background: #52667a; }
-
-    .button-row { display: flex; flex-wrap: wrap; gap: 0.65rem; margin: 1rem 0; }
-
-    details {
-      margin-top: 1rem;
-      border-top: 1px solid var(--line);
-      padding-top: 1rem;
+    .btn:focus-visible {
+      outline: 2px solid var(--brand);
+      outline-offset: 2px;
     }
 
-    summary { cursor: pointer; font-weight: 700; color: var(--primary-dark); }
+    .btn-primary {
+      color: #fff;
+      background: var(--brand);
+    }
 
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 0.75rem;
+    .btn-primary:hover { background: var(--brand-hover); }
+
+    .btn-secondary {
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+    }
+
+    .btn-secondary:hover { background: var(--surface-muted); }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
       margin: 1rem 0;
     }
 
-    label { display: block; font-size: 0.85rem; font-weight: 650; }
+    /* ── Inference form ── */
+    details.feature-panel {
+      margin-top: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-muted);
+    }
 
-    input {
+    details.feature-panel summary {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      list-style: none;
+      user-select: none;
+    }
+
+    details.feature-panel summary::-webkit-details-marker { display: none; }
+
+    details.feature-panel summary::before {
+      content: "▸";
+      display: inline-block;
+      margin-right: 0.45rem;
+      transition: transform 0.15s;
+      font-size: 0.75rem;
+    }
+
+    details.feature-panel[open] summary::before {
+      transform: rotate(90deg);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.65rem;
+      padding: 0 1rem 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 0.2rem;
+    }
+
+    .field input {
       width: 100%;
-      margin-top: 0.25rem;
-      padding: 0.6rem;
-      border: 1px solid #adbeca;
-      border-radius: 7px;
-      color: var(--ink);
-      background: white;
+      padding: 0.5rem 0.6rem;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      font: inherit;
+      font-size: 0.85rem;
+      color: var(--text);
+      background: #fff;
+      transition: border-color 0.15s;
     }
 
+    .field input:focus {
+      outline: none;
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px var(--brand-soft);
+    }
+
+    /* ── Result panel ── */
     #result {
-      min-height: 96px;
-      margin-top: 1rem;
-      padding: 1rem;
-      border-radius: 10px;
-      background: #eef6f8;
-      border-left: 5px solid var(--primary);
+      margin-top: 1.25rem;
+      padding: 1.15rem 1.25rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--surface-muted);
     }
 
-    #result[data-state="malware"] { background: #fff0f2; border-color: var(--danger); }
-    #result[data-state="benign"] { background: #eaf8f3; border-color: var(--success); }
-    #result-message { margin: 0; font-size: 1.6rem; font-weight: 800; }
-    #result-detail { margin: 0.3rem 0 0; color: var(--muted); font-size: 1rem; }
-    #warning-list { margin-bottom: 0; }
+    #result[data-state="idle"] {
+      border-left: 4px solid var(--border-strong);
+    }
 
-    @media (max-width: 600px) {
-      header { padding-top: 2.25rem; padding-bottom: 2.25rem; }
-      section { padding: 1rem; }
+    #result[data-state="benign"] {
+      background: var(--success-soft);
+      border-color: #a7f3d0;
+      border-left: 4px solid var(--success);
+    }
+
+    #result[data-state="malware"] {
+      background: var(--danger-soft);
+      border-color: #fecaca;
+      border-left: 4px solid var(--danger);
+    }
+
+    #result[data-state="loading"] {
+      border-left: 4px solid var(--brand);
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    #result-message {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge--benign {
+      background: #d1fae5;
+      color: var(--success);
+    }
+
+    .badge--malware {
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    #result-detail {
+      margin: 0.35rem 0 0;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    #warning-list {
+      margin: 0.6rem 0 0;
+      padding-left: 1.2rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Footer ── */
+    footer {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 1.25rem 1.5rem 2rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 720px) {
+      .chart-row--pair {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-row--pair .chart-frame {
+        aspect-ratio: auto;
+        max-height: none;
+        min-height: 260px;
+      }
+
+      .chart-row--wide .chart-frame,
+      .chart-row--panoramic .chart-frame {
+        aspect-ratio: auto;
+        max-height: none;
+        min-height: 200px;
+      }
+
+      .topbar-inner { padding: 0.75rem 1rem; }
+      .page-header, main { padding-left: 1rem; padding-right: 1rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+      }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>ThreatSense</h1>
-    <p>
-      Federated obfuscated-malware detection with privacy-preserving model
-      aggregation, verified evaluation, and single-record inference.
-    </p>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">TS</div>
+        ThreatSense
+      </div>
+      <span class="topbar-tag">Federated ML · Obfuscated Malware</span>
+    </div>
   </header>
 
+  <div class="page-header">
+    <h1>Evaluation &amp; Inference</h1>
+    <p>
+      Privacy-preserving federated detection with verified held-out metrics,
+      evaluation artifacts, and single-record inference.
+    </p>
+  </div>
+
   <main>
-    <section class="scope-note">
-      <h2>Scope boundary</h2>
-      <p>
-        The saved model is a general obfuscated-malware detector. Ransomware,
-        spyware, and trojan records are collapsed into one Malware class;
-        ransomware-specific attribution remains future work.
-      </p>
-      <p class="muted">
-        The multi-axis v2 simulation adds label-ratio, malware-type, and client-volume
-        skew. It has been validated independently and is ready for the next training
-        run; the metrics below still describe the currently saved v1 federated model.
-      </p>
-    </section>
-
-    <section>
-      <h2>Verified held-out performance</h2>
-      {% if metrics %}
-      <div class="metric-grid">
-        {% for metric in metrics %}
-        <article class="metric">
-          <span>{{ metric.label }} - federated</span>
-          <strong>{{ "%.3f"|format(metric.federated) }}</strong>
-          <span>Centralized: {{ "%.3f"|format(metric.centralized) }}</span>
-        </article>
-        {% endfor %}
+    <div class="callout" role="note">
+      <svg class="callout-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+      </svg>
+      <div>
+        <strong>Scope boundary</strong>
+        <p>
+          The saved model is a general obfuscated-malware detector. Ransomware,
+          spyware, and trojan records are collapsed into one Malware class;
+          ransomware-specific attribution remains future work.
+        </p>
+        <p class="text-muted">
+          The multi-axis v2 simulation adds label-ratio, malware-type, and
+          client-volume skew. It has been validated independently and is ready
+          for the next training run; the metrics below still describe the
+          currently saved v1 federated model.
+        </p>
       </div>
-      {% else %}
-      <p class="muted">Run federated training, the baseline, and evaluate.py to populate results.</p>
-      {% endif %}
-    </section>
+    </div>
 
-    <section>
-      <h2>Evaluation evidence</h2>
-      <div class="plot-grid">
-        {% if "confusion_matrix.png" in result_images %}
-        <figure>
-          <img src="/results/confusion_matrix.png" alt="Federated model confusion matrix">
-          <figcaption>Confusion matrix at the fixed 0.5 decision threshold.</figcaption>
-        </figure>
-        {% endif %}
-        {% if "roc_curve.png" in result_images %}
-        <figure>
-          <img src="/results/roc_curve.png" alt="Federated model ROC curve">
-          <figcaption>ROC curve evaluated on the identical held-out split.</figcaption>
-        </figure>
-        {% endif %}
-        {% if "federated_vs_baseline.png" in result_images %}
-        <figure>
-          <img src="/results/federated_vs_baseline.png" alt="Federated and centralized metric comparison">
-          <figcaption>Direct federated-versus-centralized comparison.</figcaption>
-        </figure>
-        {% endif %}
-        {% if "client_distribution_v2.png" in result_images %}
-        <figure>
-          <img src="/results/client_distribution_v2.png" alt="Multi-axis non-IID client distribution">
-          <figcaption>Validated v2 client heterogeneity; not yet used for the saved model.</figcaption>
-        </figure>
-        {% endif %}
-        {% if "leakage_scores.png" in result_images %}
-        <figure>
-          <img src="/results/leakage_scores.png" alt="Standalone feature predictiveness scores">
-          <figcaption>Training-only standalone feature predictiveness screen.</figcaption>
-        </figure>
-        {% endif %}
+    <section class="card" aria-labelledby="metrics-heading">
+      <div class="card-header">
+        <h2 id="metrics-heading">Verified held-out performance</h2>
+        <p>Federated model vs. centralized baseline on the identical test split</p>
       </div>
-    </section>
-
-    <section>
-      <h2>Live inference</h2>
-      <p class="muted">
-        Load a real dataset example or enter the 31 retained memory-forensics features.
-        The returned probability is the model's Malware probability.
-      </p>
-
-      <div class="button-row">
-        <button type="button" id="random-benign">Load random benign example</button>
-        <button type="button" id="random-malware" class="secondary">Load random malware example</button>
-      </div>
-
-      <form id="prediction-form">
-        <details>
-          <summary>Show or edit feature values</summary>
-          <div class="feature-grid">
-            {% for feature_name in feature_names %}
-            <label for="feature-{{ loop.index0 }}">
-              {{ feature_name }}
-              <input
-                id="feature-{{ loop.index0 }}"
-                data-feature="{{ feature_name }}"
-                type="number"
-                placeholder="Enter a value"
-                step="any"
-                required
-              >
-            </label>
-            {% endfor %}
-          </div>
-        </details>
-        <div class="button-row">
-          <button type="submit">Predict</button>
+      <div class="card-body">
+        {% if metrics %}
+        <div class="metric-grid">
+          {% for metric in metrics %}
+          <article class="metric-card">
+            <span class="metric-label">{{ metric.label }}</span>
+            <span class="metric-value">{{ "%.3f"|format(metric.federated) }}</span>
+            <span class="metric-compare">
+              Centralized baseline: <span>{{ "%.3f"|format(metric.centralized) }}</span>
+            </span>
+          </article>
+          {% endfor %}
         </div>
-      </form>
+        {% else %}
+        <div class="empty-state">
+          Run federated training, the baseline, and evaluate.py to populate results.
+        </div>
+        {% endif %}
+      </div>
+    </section>
 
-      <div id="result" aria-live="polite" data-state="idle">
-        <p id="result-message">No prediction yet.</p>
-        <p id="result-detail">The model reports probability of class 1: Malware.</p>
-        <ul id="warning-list"></ul>
+    <section class="card" aria-labelledby="evidence-heading">
+      <div class="card-header">
+        <h2 id="evidence-heading">Evaluation evidence</h2>
+        <p>Generated figures from the held-out evaluation pipeline</p>
+      </div>
+      <div class="card-body">
+        {% set has_pair = "confusion_matrix.png" in result_images or "roc_curve.png" in result_images %}
+        {% set has_wide = "federated_vs_baseline.png" in result_images or "client_distribution_v2.png" in result_images %}
+        {% set has_panoramic = "leakage_scores.png" in result_images %}
+
+        {% if has_pair or has_wide or has_panoramic %}
+        <div class="chart-section">
+          {% if has_pair %}
+          <div class="chart-row chart-row--pair">
+            {% if "confusion_matrix.png" in result_images %}
+            <figure class="chart-card">
+              <div class="chart-frame">
+                <img
+                  src="/results/confusion_matrix.png"
+                  alt="Federated model confusion matrix"
+                  loading="lazy"
+                  decoding="async"
+                  width="600"
+                  height="500"
+                >
+              </div>
+              <figcaption>Confusion matrix at the fixed 0.5 decision threshold.</figcaption>
+            </figure>
+            {% endif %}
+            {% if "roc_curve.png" in result_images %}
+            <figure class="chart-card">
+              <div class="chart-frame">
+                <img
+                  src="/results/roc_curve.png"
+                  alt="Federated model ROC curve"
+                  loading="lazy"
+                  decoding="async"
+                  width="600"
+                  height="500"
+                >
+              </div>
+              <figcaption>ROC curve evaluated on the identical held-out split.</figcaption>
+            </figure>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          {% if has_wide %}
+          <div class="chart-row chart-row--full chart-row--wide">
+            {% if "federated_vs_baseline.png" in result_images %}
+            <figure class="chart-card">
+              <div class="chart-frame">
+                <img
+                  src="/results/federated_vs_baseline.png"
+                  alt="Federated and centralized metric comparison"
+                  loading="lazy"
+                  decoding="async"
+                  width="900"
+                  height="550"
+                >
+              </div>
+              <figcaption>Direct federated-versus-centralized comparison.</figcaption>
+            </figure>
+            {% endif %}
+            {% if "client_distribution_v2.png" in result_images %}
+            <figure class="chart-card">
+              <div class="chart-frame">
+                <img
+                  src="/results/client_distribution_v2.png"
+                  alt="Multi-axis non-IID client distribution"
+                  loading="lazy"
+                  decoding="async"
+                  width="900"
+                  height="600"
+                >
+              </div>
+              <figcaption>Validated v2 client heterogeneity; not yet used for the saved model.</figcaption>
+            </figure>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          {% if has_panoramic %}
+          <div class="chart-row chart-row--full chart-row--panoramic">
+            {% if "leakage_scores.png" in result_images %}
+            <figure class="chart-card">
+              <div class="chart-frame">
+                <img
+                  src="/results/leakage_scores.png"
+                  alt="Standalone feature predictiveness scores"
+                  loading="lazy"
+                  decoding="async"
+                  width="1800"
+                  height="800"
+                >
+              </div>
+              <figcaption>Training-only standalone feature predictiveness screen.</figcaption>
+            </figure>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          No evaluation figures found. Run evaluate.py to generate plots in the results directory.
+        </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="inference-heading">
+      <div class="card-header">
+        <h2 id="inference-heading">Live inference</h2>
+        <p>Load a dataset example or enter the 31 retained memory-forensics features</p>
+      </div>
+      <div class="card-body">
+        <p class="text-muted" style="margin: 0 0 0.25rem; font-size: 0.875rem;">
+          The returned probability is the model's Malware (class 1) probability.
+        </p>
+
+        <div class="btn-row">
+          <button type="button" id="random-benign" class="btn btn-primary">
+            Load random benign example
+          </button>
+          <button type="button" id="random-malware" class="btn btn-secondary">
+            Load random malware example
+          </button>
+        </div>
+
+        <form id="prediction-form">
+          <details class="feature-panel">
+            <summary>Show or edit feature values ({{ feature_names|length }} features)</summary>
+            <div class="feature-grid">
+              {% for feature_name in feature_names %}
+              <div class="field">
+                <label for="feature-{{ loop.index0 }}">{{ feature_name }}</label>
+                <input
+                  id="feature-{{ loop.index0 }}"
+                  data-feature="{{ feature_name }}"
+                  type="number"
+                  placeholder="0"
+                  step="any"
+                  required
+                >
+              </div>
+              {% endfor %}
+            </div>
+          </details>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Run prediction</button>
+          </div>
+        </form>
+
+        <div id="result" aria-live="polite" data-state="idle">
+          <div class="result-header">
+            <p id="result-message">No prediction yet</p>
+          </div>
+          <p id="result-detail">Load an example or enter feature values, then run prediction.</p>
+          <ul id="warning-list"></ul>
+        </div>
       </div>
     </section>
   </main>
 
+  <footer>
+    ThreatSense &mdash; local demonstration interface. Feature values are not extracted from live systems.
+  </footer>
+
   <script>
     const form = document.getElementById("prediction-form");
     const result = document.getElementById("result");
+    const resultHeader = result.querySelector(".result-header");
     const resultMessage = document.getElementById("result-message");
     const resultDetail = document.getElementById("result-detail");
     const warningList = document.getElementById("warning-list");
@@ -296,15 +790,36 @@
       return Array.from(document.querySelectorAll("input[data-feature]"));
     }
 
-    function setStatus(message, detail = "", state = "idle") {
+    function clearBadge() {
+      const existing = resultHeader.querySelector(".badge");
+      if (existing) existing.remove();
+    }
+
+    function setBadge(label) {
+      clearBadge();
+      if (!label) return;
+      const normalized = label.toLowerCase();
+      if (normalized !== "benign" && normalized !== "malware") return;
+      const badge = document.createElement("span");
+      badge.className = `badge badge--${normalized}`;
+      badge.textContent = label;
+      resultHeader.appendChild(badge);
+    }
+
+    function setStatus(message, detail = "", state = "idle", badgeLabel = null) {
       result.dataset.state = state;
       resultMessage.textContent = message;
       resultDetail.textContent = detail;
       warningList.replaceChildren();
+      if (badgeLabel) {
+        setBadge(badgeLabel);
+      } else {
+        clearBadge();
+      }
     }
 
     function showError(message) {
-      setStatus("Prediction error", message, "malware");
+      setStatus("Prediction failed", message, "malware");
     }
 
     async function readJson(response) {
@@ -316,7 +831,7 @@
     }
 
     async function loadRandom(label) {
-      setStatus(`Loading a ${label} example...`);
+      setStatus(`Loading ${label} example\u2026`, "", "loading");
       try {
         const response = await fetch(`/random/${label}`);
         const data = await readJson(response);
@@ -324,8 +839,9 @@
           input.value = data[input.dataset.feature] ?? 0;
         }
         setStatus(
-          `Loaded a real ${label} example`,
-          "Click Predict to classify this row."
+          "Example loaded",
+          `A real ${label} row is ready. Click Run prediction to classify it.`,
+          "idle"
         );
       } catch (error) {
         showError(error.message);
@@ -353,7 +869,7 @@
         payload[input.dataset.feature] = Number(rawValue);
       }
 
-      setStatus("Predicting...");
+      setStatus("Running prediction\u2026", "", "loading");
       try {
         const response = await fetch("/predict", {
           method: "POST",
@@ -365,7 +881,8 @@
         setStatus(
           `Prediction: ${data.label}`,
           `Malware probability: ${percentage}% (raw: ${data.probability.toFixed(6)})`,
-          data.label.toLowerCase()
+          data.label.toLowerCase(),
+          data.label
         );
         for (const warning of data.warnings) {
           const item = document.createElement("li");
