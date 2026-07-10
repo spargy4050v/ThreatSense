@@ -3,13 +3,373 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ThreatSense</title>
+  <title>ThreatSense evaluation and inference</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #102a43;
+      --muted: #52667a;
+      --surface: #ffffff;
+      --canvas: #f2f6f8;
+      --line: #d7e1e8;
+      --primary: #176b87;
+      --primary-dark: #0f5269;
+      --accent: #e58e26;
+      --success: #147d64;
+      --danger: #b23a48;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    header {
+      color: white;
+      background: linear-gradient(120deg, #0d4053, var(--primary));
+      padding: 3.25rem max(1.25rem, calc((100vw - 1180px) / 2));
+    }
+
+    header h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      letter-spacing: -0.04em;
+    }
+
+    header p { max-width: 760px; margin: 0; color: #d9edf4; }
+
+    main {
+      width: min(1180px, calc(100% - 2rem));
+      margin: 2rem auto 4rem;
+    }
+
+    section {
+      margin: 1.5rem 0;
+      padding: 1.5rem;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      box-shadow: 0 10px 28px rgba(16, 42, 67, 0.06);
+    }
+
+    h2 { margin-top: 0; }
+    h3 { margin-bottom: 0.35rem; }
+    .muted { color: var(--muted); }
+
+    .scope-note {
+      border-left: 5px solid var(--accent);
+      background: #fff8ed;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    .metric {
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #f8fbfc;
+    }
+
+    .metric strong { display: block; font-size: 1.45rem; color: var(--primary-dark); }
+    .metric span { font-size: 0.85rem; color: var(--muted); }
+
+    .plot-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+
+    figure {
+      margin: 0;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: white;
+    }
+
+    figure img { display: block; width: 100%; height: auto; }
+    figcaption { padding: 0.8rem 1rem; color: var(--muted); }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      color: white;
+      background: var(--primary);
+      font: inherit;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    button:hover { background: var(--primary-dark); }
+    button.secondary { background: #52667a; }
+
+    .button-row { display: flex; flex-wrap: wrap; gap: 0.65rem; margin: 1rem 0; }
+
+    details {
+      margin-top: 1rem;
+      border-top: 1px solid var(--line);
+      padding-top: 1rem;
+    }
+
+    summary { cursor: pointer; font-weight: 700; color: var(--primary-dark); }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+
+    label { display: block; font-size: 0.85rem; font-weight: 650; }
+
+    input {
+      width: 100%;
+      margin-top: 0.25rem;
+      padding: 0.6rem;
+      border: 1px solid #adbeca;
+      border-radius: 7px;
+      color: var(--ink);
+      background: white;
+    }
+
+    #result {
+      min-height: 96px;
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 10px;
+      background: #eef6f8;
+      border-left: 5px solid var(--primary);
+    }
+
+    #result[data-state="malware"] { background: #fff0f2; border-color: var(--danger); }
+    #result[data-state="benign"] { background: #eaf8f3; border-color: var(--success); }
+    #result-message { margin: 0; font-size: 1.6rem; font-weight: 800; }
+    #result-detail { margin: 0.3rem 0 0; color: var(--muted); font-size: 1rem; }
+    #warning-list { margin-bottom: 0; }
+
+    @media (max-width: 600px) {
+      header { padding-top: 2.25rem; padding-bottom: 2.25rem; }
+      section { padding: 1rem; }
+    }
+  </style>
 </head>
 <body>
-  <main>
+  <header>
     <h1>ThreatSense</h1>
-    <p>The inference interface will be implemented in a later phase.</p>
+    <p>
+      Federated obfuscated-malware detection with privacy-preserving model
+      aggregation, verified evaluation, and single-record inference.
+    </p>
+  </header>
+
+  <main>
+    <section class="scope-note">
+      <h2>Scope boundary</h2>
+      <p>
+        The saved model is a general obfuscated-malware detector. Ransomware,
+        spyware, and trojan records are collapsed into one Malware class;
+        ransomware-specific attribution remains future work.
+      </p>
+      <p class="muted">
+        The multi-axis v2 simulation adds label-ratio, malware-type, and client-volume
+        skew. It has been validated independently and is ready for the next training
+        run; the metrics below still describe the currently saved v1 federated model.
+      </p>
+    </section>
+
+    <section>
+      <h2>Verified held-out performance</h2>
+      {% if metrics %}
+      <div class="metric-grid">
+        {% for metric in metrics %}
+        <article class="metric">
+          <span>{{ metric.label }} - federated</span>
+          <strong>{{ "%.3f"|format(metric.federated) }}</strong>
+          <span>Centralized: {{ "%.3f"|format(metric.centralized) }}</span>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="muted">Run federated training, the baseline, and evaluate.py to populate results.</p>
+      {% endif %}
+    </section>
+
+    <section>
+      <h2>Evaluation evidence</h2>
+      <div class="plot-grid">
+        {% if "confusion_matrix.png" in result_images %}
+        <figure>
+          <img src="/results/confusion_matrix.png" alt="Federated model confusion matrix">
+          <figcaption>Confusion matrix at the fixed 0.5 decision threshold.</figcaption>
+        </figure>
+        {% endif %}
+        {% if "roc_curve.png" in result_images %}
+        <figure>
+          <img src="/results/roc_curve.png" alt="Federated model ROC curve">
+          <figcaption>ROC curve evaluated on the identical held-out split.</figcaption>
+        </figure>
+        {% endif %}
+        {% if "federated_vs_baseline.png" in result_images %}
+        <figure>
+          <img src="/results/federated_vs_baseline.png" alt="Federated and centralized metric comparison">
+          <figcaption>Direct federated-versus-centralized comparison.</figcaption>
+        </figure>
+        {% endif %}
+        {% if "client_distribution_v2.png" in result_images %}
+        <figure>
+          <img src="/results/client_distribution_v2.png" alt="Multi-axis non-IID client distribution">
+          <figcaption>Validated v2 client heterogeneity; not yet used for the saved model.</figcaption>
+        </figure>
+        {% endif %}
+        {% if "leakage_scores.png" in result_images %}
+        <figure>
+          <img src="/results/leakage_scores.png" alt="Standalone feature predictiveness scores">
+          <figcaption>Training-only standalone feature predictiveness screen.</figcaption>
+        </figure>
+        {% endif %}
+      </div>
+    </section>
+
+    <section>
+      <h2>Live inference</h2>
+      <p class="muted">
+        Load a real dataset example or enter the 31 retained memory-forensics features.
+        The returned probability is the model's Malware probability.
+      </p>
+
+      <div class="button-row">
+        <button type="button" id="random-benign">Load random benign example</button>
+        <button type="button" id="random-malware" class="secondary">Load random malware example</button>
+      </div>
+
+      <form id="prediction-form">
+        <details>
+          <summary>Show or edit feature values</summary>
+          <div class="feature-grid">
+            {% for feature_name in feature_names %}
+            <label for="feature-{{ loop.index0 }}">
+              {{ feature_name }}
+              <input
+                id="feature-{{ loop.index0 }}"
+                data-feature="{{ feature_name }}"
+                type="number"
+                value="0"
+                step="any"
+                required
+              >
+            </label>
+            {% endfor %}
+          </div>
+        </details>
+        <div class="button-row">
+          <button type="submit">Predict</button>
+        </div>
+      </form>
+
+      <div id="result" aria-live="polite" data-state="idle">
+        <p id="result-message">No prediction yet.</p>
+        <p id="result-detail">The model reports probability of class 1: Malware.</p>
+        <ul id="warning-list"></ul>
+      </div>
+    </section>
   </main>
+
+  <script>
+    const form = document.getElementById("prediction-form");
+    const result = document.getElementById("result");
+    const resultMessage = document.getElementById("result-message");
+    const resultDetail = document.getElementById("result-detail");
+    const warningList = document.getElementById("warning-list");
+
+    function featureInputs() {
+      return Array.from(document.querySelectorAll("input[data-feature]"));
+    }
+
+    function setStatus(message, detail = "", state = "idle") {
+      result.dataset.state = state;
+      resultMessage.textContent = message;
+      resultDetail.textContent = detail;
+      warningList.replaceChildren();
+    }
+
+    function showError(message) {
+      setStatus("Prediction error", message, "malware");
+    }
+
+    async function readJson(response) {
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || `Request failed (${response.status})`);
+      }
+      return data;
+    }
+
+    async function loadRandom(label) {
+      setStatus(`Loading a ${label} example...`);
+      try {
+        const response = await fetch(`/random/${label}`);
+        const data = await readJson(response);
+        for (const input of featureInputs()) {
+          input.value = data[input.dataset.feature] ?? 0;
+        }
+        setStatus(
+          `Loaded a real ${label} example`,
+          "Click Predict to classify this row."
+        );
+      } catch (error) {
+        showError(error.message);
+      }
+    }
+
+    document.getElementById("random-benign").addEventListener("click", () => {
+      loadRandom("benign");
+    });
+
+    document.getElementById("random-malware").addEventListener("click", () => {
+      loadRandom("malware");
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const payload = {};
+      for (const input of featureInputs()) {
+        payload[input.dataset.feature] = Number(input.value);
+      }
+
+      setStatus("Predicting...");
+      try {
+        const response = await fetch("/predict", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(payload)
+        });
+        const data = await readJson(response);
+        const percentage = (data.probability * 100).toFixed(2);
+        setStatus(
+          `Prediction: ${data.label}`,
+          `Malware probability: ${percentage}% (raw: ${data.probability.toFixed(6)})`,
+          data.label.toLowerCase()
+        );
+        for (const warning of data.warnings) {
+          const item = document.createElement("li");
+          item.textContent = warning;
+          warningList.appendChild(item);
+        }
+      } catch (error) {
+        showError(error.message);
+      }
+    });
+  </script>
 </body>
 </html>
-
