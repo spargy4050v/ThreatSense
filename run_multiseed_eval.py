@@ -14,6 +14,7 @@ from sklearn.preprocessing import StandardScaler
 
 from run_federated_training import (
     BATCH_SIZE,
+    CATEGORY_COL,
     LABEL_COL,
     LEAKAGE_THRESHOLD,
     LOCAL_EPOCHS,
@@ -26,14 +27,14 @@ from src.baseline import EPOCHS as BASELINE_EPOCHS
 from src.client import local_train
 from src.leakage_check import screen_leaky_features
 from src.model import create_mlp
-from src.partition import partition_non_iid
+from src.partition import partition_non_iid_v2
 from src.preprocessing import load_dataset, prepare_labels, select_features
 from src.server import fed_avg_weighted
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 DATASET_PATH = PROJECT_ROOT / "data" / "Obfuscated-MalMem2022.csv"
-RESULTS_PATH = PROJECT_ROOT / "results" / "multiseed_results.json"
+RESULTS_PATH = PROJECT_ROOT / "results" / "multiseed_results_v2.json"
 SEEDS = [42, 7, 123]
 METRIC_NAMES = ["accuracy", "precision", "recall", "f1", "roc_auc"]
 METRIC_LABELS = ["Accuracy", "Precision", "Recall", "F1", "ROC-AUC"]
@@ -106,10 +107,14 @@ def prepare_seed_data(
         index=train_selected.index,
     )
     scaled_training[LABEL_COL] = y_train
-    client_dfs = partition_non_iid(
+    scaled_training[CATEGORY_COL] = train_raw.loc[
+        scaled_training.index, CATEGORY_COL
+    ]
+    client_dfs = partition_non_iid_v2(
         scaled_training,
         n_clients=N_CLIENTS,
         label_col=LABEL_COL,
+        category_col=CATEGORY_COL,
         random_state=seed,
     )
     return (
@@ -139,7 +144,7 @@ def train_federated(
         local_weight_sets: list[list[np.ndarray]] = []
         client_sizes: list[int] = []
         for client_df in client_dfs:
-            X_client = client_df.drop(columns=[LABEL_COL]).to_numpy(
+            X_client = client_df.drop(columns=[LABEL_COL, CATEGORY_COL]).to_numpy(
                 dtype=np.float32
             )
             y_client = client_df[LABEL_COL].to_numpy(dtype=np.int32)
@@ -300,6 +305,7 @@ def main() -> None:
     )
 
     output = {
+        "partitioner": "partition_non_iid_v2",
         "seeds": SEEDS,
         "standard_deviation": "sample (ddof=1)",
         "federated": {

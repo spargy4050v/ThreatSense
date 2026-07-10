@@ -11,6 +11,7 @@ import tensorflow as tf
 from sklearn.model_selection import train_test_split
 
 from run_federated_training import (
+    MODEL_PATH,
     N_CLIENTS,
     RANDOM_STATE,
     ROUNDS,
@@ -20,9 +21,8 @@ from src.preprocessing import load_dataset, prepare_labels
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-MODEL_PATH = PROJECT_ROOT / "models" / "federated_global_model.keras"
 DATASET_PATH = PROJECT_ROOT / "data" / "Obfuscated-MalMem2022.csv"
-RESULT_PATH = PROJECT_ROOT / "results" / "communication_cost.json"
+RESULT_PATH = PROJECT_ROOT / "results" / "communication_cost_v2.json"
 DIRECTIONS_PER_ROUND = 2
 
 
@@ -140,6 +140,7 @@ def main() -> None:
     print(f"\n{summary}")
 
     output = {
+        "partitioner": "partition_non_iid_v2",
         "parameter_count": parameter_count,
         "serialization_method": (
             "pickle.dumps(model.get_weights(), "

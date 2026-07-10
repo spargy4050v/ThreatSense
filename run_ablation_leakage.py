@@ -15,6 +15,7 @@ from sklearn.preprocessing import StandardScaler
 
 from run_federated_training import (
     BATCH_SIZE,
+    CATEGORY_COL,
     LABEL_COL,
     LEAKAGE_THRESHOLD,
     LOCAL_EPOCHS,
@@ -27,7 +28,7 @@ from run_federated_training import (
 from src.client import local_train
 from src.leakage_check import screen_leaky_features
 from src.model import create_mlp
-from src.partition import partition_non_iid
+from src.partition import partition_non_iid_v2
 from src.preprocessing import load_dataset, prepare_labels, select_features
 from src.server import fed_avg_weighted
 
@@ -35,8 +36,8 @@ from src.server import fed_avg_weighted
 PROJECT_ROOT = Path(__file__).resolve().parent
 DATASET_PATH = PROJECT_ROOT / "data" / "Obfuscated-MalMem2022.csv"
 RESULTS_DIR = PROJECT_ROOT / "results"
-JSON_PATH = RESULTS_DIR / "leakage_ablation.json"
-PLOT_PATH = RESULTS_DIR / "leakage_ablation_plot.png"
+JSON_PATH = RESULTS_DIR / "leakage_ablation_v2.json"
+PLOT_PATH = RESULTS_DIR / "leakage_ablation_plot_v2.png"
 METRIC_NAMES = ["accuracy", "precision", "recall", "f1", "roc_auc"]
 METRIC_LABELS = ["Accuracy", "Precision", "Recall", "F1", "ROC-AUC"]
 NEARLY_IDENTICAL_TOLERANCE = 0.001
@@ -53,6 +54,7 @@ def set_condition_seed(seed: int = RANDOM_STATE) -> None:
 def prepare_condition(
     train_selected: pd.DataFrame,
     test_selected: pd.DataFrame,
+    train_categories: pd.Series,
     feature_names: list[str],
 ) -> tuple[list[pd.DataFrame], np.ndarray, np.ndarray]:
     """Scale and partition one feature condition without sharing fitted state."""
@@ -77,10 +79,12 @@ def prepare_condition(
         index=train_selected.index,
     )
     scaled_training[LABEL_COL] = y_train
-    clients = partition_non_iid(
+    scaled_training[CATEGORY_COL] = train_categories.loc[scaled_training.index]
+    clients = partition_non_iid_v2(
         scaled_training,
         n_clients=N_CLIENTS,
         label_col=LABEL_COL,
+        category_col=CATEGORY_COL,
         random_state=RANDOM_STATE,
     )
     return clients, X_test_scaled, y_test
@@ -104,7 +108,7 @@ def train_condition(
         client_sizes: list[int] = []
 
         for client_df in client_dfs:
-            X_client = client_df.drop(columns=[LABEL_COL]).to_numpy(
+            X_client = client_df.drop(columns=[LABEL_COL, CATEGORY_COL]).to_numpy(
                 dtype=np.float32
             )
             y_client = client_df[LABEL_COL].to_numpy(dtype=np.int32)
@@ -231,6 +235,7 @@ def main() -> None:
     clients_full, X_test_full, y_test_full = prepare_condition(
         train_selected,
         test_selected,
+        train_raw[CATEGORY_COL],
         features_full,
     )
     without_screening = train_condition(
@@ -244,6 +249,7 @@ def main() -> None:
     clients_screened, X_test_screened, y_test_screened = prepare_condition(
         train_selected,
         test_selected,
+        train_raw[CATEGORY_COL],
         features_screened,
     )
     with_screening = train_condition(
@@ -280,6 +286,7 @@ def main() -> None:
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     output = {
+        "partitioner": "partition_non_iid_v2",
         "flagged_features": flagged_features,
         "feature_counts": {
             "with_leakage_screening": len(features_screened),
