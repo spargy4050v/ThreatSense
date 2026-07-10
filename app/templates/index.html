@@ -264,7 +264,7 @@
                 id="feature-{{ loop.index0 }}"
                 data-feature="{{ feature_name }}"
                 type="number"
-                value="0"
+                placeholder="Enter a value"
                 step="any"
                 required
               >
@@ -344,7 +344,13 @@
       event.preventDefault();
       const payload = {};
       for (const input of featureInputs()) {
-        payload[input.dataset.feature] = Number(input.value);
+        const rawValue = input.value.trim();
+        if (rawValue === "") {
+          showError("Load an example or enter every feature value before predicting.");
+          input.focus();
+          return;
+        }
+        payload[input.dataset.feature] = Number(rawValue);
       }
 
       setStatus("Predicting...");

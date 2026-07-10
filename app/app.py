@@ -146,6 +146,11 @@ def predict():
     if not isinstance(payload, dict):
         return jsonify(error="Request body must be a JSON object."), 400
 
+    if not any(feature_name in payload for feature_name in FEATURE_NAMES):
+        return jsonify(
+            error="No feature values were provided. Load an example or enter values first."
+        ), 400
+
     warnings: list[str] = []
     values: list[float] = []
     for feature_name in FEATURE_NAMES:
