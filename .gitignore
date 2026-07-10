@@ -3,6 +3,7 @@ data/*.csv
 
 # Generated model artifacts
 models/*.keras
+models/*.json
 *.joblib
 
 # Python environments and caches
@@ -12,8 +13,9 @@ __pycache__/
 
 # Generated plots; commit selected verified results explicitly with git add -f
 results/*.png
+results/*.csv
+results/*.json
 
 # Common local files
 .env
 .DS_Store
-
