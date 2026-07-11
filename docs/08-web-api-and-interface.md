@@ -35,7 +35,7 @@ Renders the dashboard with:
 
 Serves only these allowlisted generated images:
 
-- `client_distribution_v2.png`;
+- `client_distribution.png`;
 - `confusion_matrix.png`;
 - `federated_vs_baseline.png`;
 - `leakage_scores.png`;
@@ -110,11 +110,6 @@ Malware probability: 1.83% (raw: 0.018299)
 
 The label is visually primary. The class-1 probability is supporting detail so
 a low benign probability is not misread as low confidence.
-
-## Dashboard truthfulness
-
-The dashboard labels v2 client heterogeneity as validated but not yet used for
-the saved model. Main metrics are explicitly tied to the current v1 model.
 
 ## Security and deployment notes
 

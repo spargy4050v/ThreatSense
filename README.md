@@ -17,10 +17,6 @@ other non-benign families into one malware class. The trained model is therefore
 a general obfuscated-malware detector; ransomware-specific detection and family
 attribution are future work.
 
-A multi-axis non-IID partitioning variant (ratio + malware-type + client-volume
-skew) is implemented and unit-verified in partition.py but not yet wired into
-the training pipeline — planned as future work.
-
 The project builds on prior federated-malware research rather than claiming the
 idea of federated ransomware detection as novel. In particular, FEDetect (2025)
 applies federated learning to CIC-MalMem-2022 for malware classification.

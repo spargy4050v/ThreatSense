@@ -20,7 +20,7 @@
 | `src/__init__.py` | Marks `src` as a Python package. |
 | `src/preprocessing.py` | Dataset fallback loading, binary label mapping, and numeric-column selection. |
 | `src/leakage_check.py` | Single-feature logistic-regression cross-validation and score plot. |
-| `src/partition.py` | Original label-skew partition, experimental multi-axis v2 partition, conservation checks, and distribution plots. |
+| `src/partition.py` | Label-skew non-IID partitioning and client-distribution plotting. |
 | `src/model.py` | Defines and compiles the shared regularized Keras MLP. |
 | `src/client.py` | Trains one local client from the current global weights using balanced class weights. |
 | `src/server.py` | Validates client weight structures and computes sample-weighted FedAvg. |
@@ -61,8 +61,7 @@ The model and scaler artifacts are ignored because they are generated binaries.
 | --- | --- |
 | `results/federated_log.csv` | One row of test metrics per federated round. |
 | `results/baseline_metrics.json` | Final seed-42 centralized metrics. |
-| `results/client_distribution.png` | Original binary label distribution across v1 clients. |
-| `results/client_distribution_v2.png` | Experimental v2 stacked coarse-category distribution. |
+| `results/client_distribution.png` | Binary label distribution across non-IID clients. |
 | `results/leakage_scores.png` | Standalone feature accuracy scores and the 0.85 review threshold. |
 | `results/confusion_matrix.png` | Seed-42 federated confusion matrix at threshold 0.5. |
 | `results/roc_curve.png` | Seed-42 federated ROC curve and AUC. |

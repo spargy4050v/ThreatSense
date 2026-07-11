@@ -25,7 +25,7 @@ LABEL_COLUMN = "Class"
 PREDICTION_THRESHOLD = 0.5
 METRIC_NAMES = ["accuracy", "precision", "recall", "f1", "roc_auc"]
 RESULT_IMAGE_NAMES = {
-    "client_distribution_v2.png",
+    "client_distribution.png",
     "confusion_matrix.png",
     "federated_vs_baseline.png",
     "leakage_scores.png",

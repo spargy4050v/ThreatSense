@@ -56,8 +56,8 @@ not committed.
 .\.venv\Scripts\python.exe src\server.py
 ```
 
-Note: running `src/partition.py` exercises v2 and writes the v2 plot. The main
-trainer still uses v1.
+Running `src/partition.py` exercises the same `partition_non_iid` function used
+by the trainer and writes `results/client_distribution.png`.
 
 ## 6. Run primary federated training
 

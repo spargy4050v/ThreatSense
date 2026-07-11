@@ -26,7 +26,7 @@ of malware by itself.
 
 | Column | Treatment |
 | --- | --- |
-| `Category` | String sample/type/family identifier. Removed by numeric selection. Used only by experimental v2 analysis and random-row context. |
+| `Category` | String sample/type/family identifier. Removed by numeric selection and retained as random-row context. |
 | `Class` | Target label. Mapped to `0/1`; never used as an input feature. |
 
 ## Retained model features

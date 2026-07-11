@@ -515,39 +515,23 @@ def plot_client_distribution_v2(
 
 
 if __name__ == "__main__":
-    from preprocessing import load_dataset, prepare_labels
+    from preprocessing import load_dataset, prepare_labels, select_features
 
     project_root = Path(__file__).resolve().parents[1]
     dataset_path = project_root / "data" / "Obfuscated-MalMem2022.csv"
-    plot_path = project_root / "results" / "client_distribution_v2.png"
+    plot_path = project_root / "results" / "client_distribution.png"
 
     raw_data = load_dataset([str(dataset_path)])
-    labeled_data = prepare_labels(raw_data)
-    clients = partition_non_iid_v2(labeled_data, n_clients=4)
+    cleaned_data = select_features(prepare_labels(raw_data))
+    clients = partition_non_iid(cleaned_data, n_clients=4)
 
     for client_id, client_df in enumerate(clients, start=1):
         benign_count = int((client_df["Class"] == 0).sum())
         malware_count = int((client_df["Class"] == 1).sum())
-        total_count = len(client_df)
         print(
-            f"Client {client_id}: total={total_count:,}, "
-            f"benign={benign_count:,} ({benign_count / total_count:.1%}), "
-            f"malware={malware_count:,} ({malware_count / total_count:.1%})"
+            f"Client {client_id}: total={len(client_df)}, "
+            f"benign={benign_count}, malware={malware_count}"
         )
-        category_counts = (
-            client_df["Category"]
-            .map(_category_group)
-            .value_counts()
-            .sort_index()
-        )
-        for category, count in category_counts.items():
-            malware_share = count / malware_count if category != "Benign" else None
-            suffix = (
-                f" ({malware_share:.1%} of malware)"
-                if malware_share is not None
-                else ""
-            )
-            print(f"  {category}: {count:,}{suffix}")
 
-    plot_client_distribution_v2(clients, "Category", str(plot_path))
-    print(f"Saved multi-axis distribution plot to {plot_path}")
+    plot_client_distribution(clients, "Class", str(plot_path))
+    print(f"Saved client distribution plot to {plot_path}")

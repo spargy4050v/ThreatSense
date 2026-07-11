@@ -193,6 +193,11 @@
 
     .text-muted { color: var(--text-muted); }
 
+    .inference-help {
+      margin: 0 0 0.25rem;
+      font-size: 0.875rem;
+    }
+
     /* ── Metrics ── */
     .metric-grid {
       display: grid;
@@ -376,6 +381,7 @@
       font-weight: 600;
       color: var(--text-secondary);
       list-style: none;
+      -webkit-user-select: none;
       user-select: none;
     }
 
@@ -575,12 +581,6 @@
           spyware, and trojan records are collapsed into one Malware class;
           ransomware-specific attribution remains future work.
         </p>
-        <p class="text-muted">
-          The multi-axis v2 simulation adds label-ratio, malware-type, and
-          client-volume skew. It has been validated independently and is ready
-          for the next training run; the metrics below still describe the
-          currently saved v1 federated model.
-        </p>
       </div>
     </div>
 
@@ -617,7 +617,7 @@
       </div>
       <div class="card-body">
         {% set has_pair = "confusion_matrix.png" in result_images or "roc_curve.png" in result_images %}
-        {% set has_wide = "federated_vs_baseline.png" in result_images or "client_distribution_v2.png" in result_images %}
+        {% set has_wide = "federated_vs_baseline.png" in result_images or "client_distribution.png" in result_images %}
         {% set has_panoramic = "leakage_scores.png" in result_images %}
 
         {% if has_pair or has_wide or has_panoramic %}
@@ -674,19 +674,19 @@
               <figcaption>Direct federated-versus-centralized comparison.</figcaption>
             </figure>
             {% endif %}
-            {% if "client_distribution_v2.png" in result_images %}
+            {% if "client_distribution.png" in result_images %}
             <figure class="chart-card">
               <div class="chart-frame">
                 <img
-                  src="/results/client_distribution_v2.png"
-                  alt="Multi-axis non-IID client distribution"
+                  src="/results/client_distribution.png"
+                  alt="Non-IID client class distribution"
                   loading="lazy"
                   decoding="async"
                   width="900"
                   height="600"
                 >
               </div>
-              <figcaption>Validated v2 client heterogeneity; not yet used for the saved model.</figcaption>
+              <figcaption>Non-IID class distribution used by the training pipeline.</figcaption>
             </figure>
             {% endif %}
           </div>
@@ -726,7 +726,7 @@
         <p>Load a dataset example or enter the 31 retained memory-forensics features</p>
       </div>
       <div class="card-body">
-        <p class="text-muted" style="margin: 0 0 0.25rem; font-size: 0.875rem;">
+        <p class="text-muted inference-help">
           The returned probability is the model's Malware (class 1) probability.
         </p>
 

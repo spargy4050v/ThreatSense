@@ -68,7 +68,7 @@ the data separation and aggregation algorithm, but there are no remote client
 machines, sockets, authentication, transport encryption, failures, or
 asynchronous updates.
 
-## Main v1 partition
+## Non-IID partition
 
 `partition_non_iid` creates label-ratio skew:
 
@@ -79,24 +79,6 @@ Client target benign ratios: 80%, 60%, 40%, 20%
 Target sizes differ by at most one row, so the current primary run does not
 have meaningful quantity skew. Sample-weighted FedAvg is correct but receives
 nearly equal weights in this configuration.
-
-## Experimental v2 partition
-
-`partition_non_iid_v2` adds three kinds of heterogeneity:
-
-- label-ratio skew;
-- coarse malware-type composition skew;
-- client quantity skew from seeded Dirichlet draws with at least 500 rows per
-  client.
-
-The verified v2 example produced client sizes `9,854`, `22,749`, `15,246`, and
-`10,747`. Dominant malware-type shares were approximately 68.1%, 71.9%, 70.0%,
-and 68.1%.
-
-Because the CSV `Category` embeds sample identifiers and includes 15 specific
-malware families but only four clients, the implementation uses the stable
-leading groups Ransomware, Spyware, and Trojan. It is accurate to call this
-**malware-type composition skew**, not 15-family skew.
 
 ## Centralized baseline flow
 

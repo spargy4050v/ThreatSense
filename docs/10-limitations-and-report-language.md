@@ -28,8 +28,6 @@ The current evidence supports these statements:
   0.802 percentage points.
 - Under the script's uncompressed serialization assumptions, complete
   federated weight traffic was 20.70% of one raw training-split CSV upload.
-- v2 can create unequal, label-skewed, and coarse malware-type-skewed clients
-  without losing or duplicating rows.
 
 ## Findings that require careful wording
 
@@ -63,11 +61,6 @@ The Flask endpoint returns predictions interactively after receiving a prepared
 feature vector. It does not monitor memory or extract features continuously.
 Call it **interactive single-record inference**, not real-time endpoint
 detection.
-
-### "Malware-family skew"
-
-V2 uses Ransomware/Spyware/Trojan leading groups. Call this **coarse malware-
-type composition skew**. True 15-family skew is not implemented.
 
 ### "Communication savings"
 
@@ -142,12 +135,11 @@ Algorithms," *Arabian Journal for Science and Engineering*, 50(19),
 
 ## Next experiments that would strengthen the work
 
-1. Switch the main trainer to v2 and rerun all comparisons.
-2. Test selected flagged feature groups instead of removing all 24 together.
-3. Use group-aware splits by capture/sample/family if suitable identifiers are
+1. Test selected flagged feature groups instead of removing all 24 together.
+2. Use group-aware splits by capture/sample/family if suitable identifiers are
    available.
-4. Validate on a different collection environment or memory-malware dataset.
-5. Add FedProx or another heterogeneity-aware baseline.
-6. Measure real serialized transport with protocol and security overhead.
-7. Add probability calibration and out-of-distribution checks.
-8. Add formal privacy mechanisms if privacy guarantees are claimed.
+3. Validate on a different collection environment or memory-malware dataset.
+4. Add FedProx or another heterogeneity-aware baseline.
+5. Measure real serialized transport with protocol and security overhead.
+6. Add probability calibration and out-of-distribution checks.
+7. Add formal privacy mechanisms if privacy guarantees are claimed.

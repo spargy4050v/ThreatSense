@@ -122,25 +122,10 @@ encryption, secure aggregation, retransmission, and compression. It measures
 byte volume, not security or latency. Raw data is counted once; weights are
 counted every round in both directions.
 
-## v2 distribution verification
-
-The independent v2 check produced:
-
-| Client | Rows | Benign share | Dominant malware type |
-| --- | ---: | ---: | ---: |
-| 1 | 9,854 | 78.8% | Ransomware 68.1% |
-| 2 | 22,749 | 59.5% | Spyware 71.9% |
-| 3 | 15,246 | 39.2% | Trojan 70.0% |
-| 4 | 10,747 | 18.9% | Ransomware 68.1% |
-
-Conservation, unique indices, deterministic reruns, and minimum client size all
-passed. No headline model metric currently comes from this partition.
-
 ## Generated figures
 
 - `leakage_scores.png`: which individual features crossed 0.85.
-- `client_distribution.png`: v1 class skew.
-- `client_distribution_v2.png`: experimental v2 quantity/type skew.
+- `client_distribution.png`: non-IID class skew.
 - `confusion_matrix.png`: threshold-specific errors.
 - `roc_curve.png`: threshold-independent ranking curve.
 - `federated_vs_baseline.png`: main metric comparison.

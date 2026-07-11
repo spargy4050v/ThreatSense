@@ -118,10 +118,4 @@ The model is a 12,417-parameter MLP:
 It uses Adam with learning rate `0.0005` and binary cross-entropy with label
 smoothing `0.05`.
 
-## Current state versus experimental v2 partition
-
-The saved model and headline metrics use the original `partition_non_iid`
-function. `partition_non_iid_v2` has been implemented and independently
-verified, but `run_federated_training.py` has not been switched to it. The v2
-plot must not be presented as the distribution used to produce the current
-saved model.
+The saved model and headline metrics use `partition_non_iid`.

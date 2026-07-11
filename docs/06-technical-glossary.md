@@ -42,7 +42,8 @@ sample-count weights in `fed_avg_weighted`.
 
 A client with `n_k` rows receives weight `n_k / total_rows`. This prevents a
 small client from influencing the global model as much as a much larger one.
-The primary v1 clients are nearly equal; v2 makes the weighting meaningful.
+The current clients are nearly equal in size, while sample weighting keeps the
+aggregation correct if client sizes change.
 
 ### Model update, weights, parameters, and gradients
 
@@ -56,29 +57,12 @@ language should say **weights/model parameters**, not gradients.
 ### Non-IID
 
 Non-independent and identically distributed. Client datasets have different
-class mixtures or feature/category distributions. Implemented by the partition
-functions.
+class mixtures or feature distributions. Implemented by `partition_non_iid`.
 
 ### Label skew
 
-Clients have different proportions of class `0` and class `1`. V1 targets
+Clients have different proportions of class `0` and class `1`. ThreatSense targets
 benign ratios of 80%, 60%, 40%, and 20%.
-
-### Quantity skew
-
-Clients have different numbers of rows. Implemented in v2, not the current
-saved-model training run.
-
-### Malware-type composition skew
-
-Clients see different Ransomware/Spyware/Trojan mixtures among malware rows.
-Implemented in v2. Do not call it 15-family skew.
-
-### Dirichlet distribution
-
-A probability distribution over fractions that sum to one. V2 draws candidate
-client-size fractions using `rng.dirichlet(np.ones(n_clients))` and selects a
-reproducible feasible vector.
 
 ### Privacy-preserving
 

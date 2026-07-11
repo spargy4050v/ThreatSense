@@ -77,40 +77,15 @@ The primary training partitioner:
 It preserves every row and avoids reusing source slices. Its purpose is label
 skew, not quantity skew.
 
-### v2 private helpers
+### Plot function
 
-- `_category_group`: extracts the leading category such as Ransomware from the
-  long sample identifier.
-- `_fit_counts_to_total`: rounds desired counts while matching a required total
-  and respecting capacities.
-- `_dirichlet_client_sizes`: selects reproducible unequal sizes from seeded
-  Dirichlet draws, enforces at least 500 rows, and favors a draw compatible with
-  global category supply.
-- `_allocate_malware_categories`: integer-allocates malware categories toward a
-  70/30 target while exhausting all available rows.
-
-### `partition_non_iid_v2(...)`
-
-- validates columns, labels, non-null values, and unique source indices;
-- creates label, malware-type, and quantity skew;
-- cycles dominant types across clients;
-- uses conservation assertions for total length, index uniqueness, source-index
-  equality, and 500-row minimum;
-- returns the original columns without its temporary grouping column.
-
-This function is tested independently but is not the current main training
-default.
-
-### Plot functions
-
-- `plot_client_distribution`: stacked Benign/Malware count plot for v1.
-- `plot_client_distribution_v2`: stacked Benign/Ransomware/Spyware/Trojan plot
-  for v2.
+`plot_client_distribution` writes the stacked Benign/Malware count plot used
+to inspect the partition.
 
 ### Script block
 
-Runs v2 against the real dataset, prints each client size, label percentages,
-and category breakdown, then writes `client_distribution_v2.png`.
+Runs `partition_non_iid` against the real dataset, prints each client's class
+counts, then writes `client_distribution.png`.
 
 ## `src/model.py`
 
@@ -190,7 +165,7 @@ recall, F1, and ROC-AUC.
 ### `prepare_federated_data`
 
 Performs the full safe preprocessing order, saves the fitted scaler and feature
-schema, builds the v1 clients, and prints the flagged features.
+schema, builds the non-IID clients, and prints the flagged features.
 
 ### `run_federated_training`
 
