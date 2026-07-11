@@ -23,7 +23,7 @@ from sklearn.preprocessing import StandardScaler
 from src.client import local_train
 from src.leakage_check import screen_leaky_features
 from src.model import create_mlp
-from src.partition import partition_non_iid_v2
+from src.partition import partition_non_iid
 from src.preprocessing import load_dataset, prepare_labels, select_features
 from src.server import fed_avg_weighted
 
@@ -41,11 +41,6 @@ ROUNDS = 8
 LOCAL_EPOCHS = 1
 BATCH_SIZE = 32
 LABEL_COL = "Class"
-CATEGORY_COL = "Category"
-SCALER_PATH = MODELS_DIR / "scaler_v2.joblib"
-FEATURES_PATH = MODELS_DIR / "features_v2.json"
-MODEL_PATH = MODELS_DIR / "federated_global_model_v2.keras"
-FEDERATED_LOG_PATH = RESULTS_DIR / "federated_log_v2.csv"
 
 
 def set_reproducible_seeds(seed: int = RANDOM_STATE) -> None:
@@ -126,8 +121,8 @@ def prepare_federated_data() -> tuple[
 
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    joblib.dump(scaler, SCALER_PATH)
-    with FEATURES_PATH.open("w", encoding="utf-8") as file:
+    joblib.dump(scaler, MODELS_DIR / "scaler.joblib")
+    with (MODELS_DIR / "features.json").open("w", encoding="utf-8") as file:
         json.dump(feature_names, file, indent=2)
 
     scaled_training = pd.DataFrame(
@@ -136,14 +131,10 @@ def prepare_federated_data() -> tuple[
         index=X_train.index,
     )
     scaled_training[LABEL_COL] = y_train.to_numpy()
-    scaled_training[CATEGORY_COL] = train_raw.loc[
-        scaled_training.index, CATEGORY_COL
-    ]
-    client_dfs = partition_non_iid_v2(
+    client_dfs = partition_non_iid(
         scaled_training,
         n_clients=N_CLIENTS,
         label_col=LABEL_COL,
-        category_col=CATEGORY_COL,
         random_state=RANDOM_STATE,
     )
 
@@ -185,7 +176,7 @@ def run_federated_training() -> dict[str, float]:
         update_norms: list[float] = []
 
         for client_df in client_dfs:
-            X_client = client_df.drop(columns=[LABEL_COL, CATEGORY_COL]).to_numpy(
+            X_client = client_df.drop(columns=[LABEL_COL]).to_numpy(
                 dtype=np.float32
             )
             y_client = client_df[LABEL_COL].to_numpy(dtype=np.int32)
@@ -229,10 +220,10 @@ def run_federated_training() -> dict[str, float]:
         )
 
     pd.DataFrame(round_history).to_csv(
-        FEDERATED_LOG_PATH,
+        RESULTS_DIR / "federated_log.csv",
         index=False,
     )
-    global_model.save(MODEL_PATH)
+    global_model.save(MODELS_DIR / "federated_global_model.keras")
 
     final_metrics = {
         key: float(value)

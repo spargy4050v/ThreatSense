@@ -248,7 +248,9 @@ def partition_non_iid_v2(
     category_col: str = "Category",
     random_state: int = 42,
 ) -> list[pd.DataFrame]:
-    """Partition rows with label, malware-category, and quantity skew.
+    """Implemented and validated standalone; not currently wired into the training pipeline — see README future scope.
+
+    Partition rows with label, malware-category, and quantity skew.
 
     Client sizes come from a seeded Dirichlet(1, ..., 1) draw, with at least
     500 rows per client. Benign target ratios descend from 80% to 20%. Within
