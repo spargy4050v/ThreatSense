@@ -617,7 +617,7 @@
       </div>
       <div class="card-body">
         {% set has_pair = "confusion_matrix.png" in result_images or "roc_curve.png" in result_images %}
-        {% set has_wide = "federated_vs_baseline.png" in result_images or "client_distribution.png" in result_images %}
+        {% set has_wide = "federated_vs_baseline.png" in result_images or "client_distribution.png" in result_images or "leakage_ablation_plot.png" in result_images %}
         {% set has_panoramic = "leakage_scores.png" in result_images %}
 
         {% if has_pair or has_wide or has_panoramic %}
@@ -687,6 +687,21 @@
                 >
               </div>
               <figcaption>Non-IID class distribution used by the training pipeline.</figcaption>
+            </figure>
+            {% endif %}
+            {% if "leakage_ablation_plot.png" in result_images %}
+            <figure class="chart-card">
+              <div class="chart-frame">
+                <img
+                  src="/results/leakage_ablation_plot.png"
+                  alt="Leakage screening ablation metric comparison"
+                  loading="lazy"
+                  decoding="async"
+                  width="900"
+                  height="550"
+                >
+              </div>
+              <figcaption>Screening-on/off ablation showing the feature-removal trade-off.</figcaption>
             </figure>
             {% endif %}
           </div>

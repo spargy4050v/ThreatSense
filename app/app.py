@@ -28,6 +28,7 @@ RESULT_IMAGE_NAMES = {
     "client_distribution.png",
     "confusion_matrix.png",
     "federated_vs_baseline.png",
+    "leakage_ablation_plot.png",
     "leakage_scores.png",
     "roc_curve.png",
 }
